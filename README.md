@@ -36,3 +36,8 @@ This is the path the program targets.  If the path contains `.bin` then the prog
 This optional flag indicates whether you want a new directory to be made for each file analysed.  If the flag is provided (as it is here) then a new folder will be created with the same name as the data file and the output files will be placed in that folder.  If the flag is not given the output files will be placed in the same directory as the data file
 
 The program, as run from the command line, results in the creation of a few `.csv` files.  One file each is created for each type of event.  These are saved as `<*event_data_$address.csv>` where `address` is the register address that event is logged with.  All `write` events are saved in `<*write_data.csv>` but the actuall events are not being presented (and are not uniquely recoverable from this file).  Instead, the file describes the state of each of the registers, where `TRUE` indicates high and `FALSE` indicates low.  A value of `NaN` indicates that location has yet to be written to in the session described bu the given datafile.
+
+##To-do
+- [ ] Better way to search for existing files to prevent re-analysis
+- [ ] Support toggle and other commands
+- [ ] Remove need to specify the register values
