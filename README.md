@@ -1,6 +1,6 @@
 ## Documentation
 
-### parse_harp_binary*
+### parse_harp_binary.jl
 There were a couple of attempts at this in some different languages.  In the end, I settled for Julia for the combination of speed and a nice high level language
 
 `julia parse_harp_binary.jl --help`
