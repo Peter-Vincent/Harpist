@@ -37,7 +37,7 @@ This optional flag indicates whether you want a new directory to be made for eac
 
 The program, as run from the command line, results in the creation of a few `.csv` files.  One file each is created for each type of event.  These are saved as `<*event_data_$address.csv>` where `address` is the register address that event is logged with.  All `write` events are saved in `<*write_data.csv>` but the actuall events are not being presented (and are not uniquely recoverable from this file).  Instead, the file describes the state of each of the registers, where `TRUE` indicates high and `FALSE` indicates low.  A value of `NaN` indicates that location has yet to be written to in the session described bu the given datafile.
 
-##To-do
+## To-do
 - [ ] Better way to search for existing files to prevent re-analysis
 - [ ] Support toggle and other commands
 - [ ] Remove need to specify the register values
