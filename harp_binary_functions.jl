@@ -1,18 +1,6 @@
 using DataFrames
 using CSV
-
-
-payloadtypes = Dict([
-    (1 , UInt8),
-    (2 , UInt16),
-    (4 , UInt32),
-    (8 , UInt64),
-    (129 , Int8),
-    (130 , Int16),
-    (132 , Int32),
-    (136 , Int64),
-    (68  , Float32)
-])
+include("harp_reg_addr.jl")
 
 function read_harp_bin(file_name::String)
     harp_file = open(file_name,"r")
@@ -43,7 +31,9 @@ function read_harp_bin(file_name::String)
         catch e
 
             if isa(e, EOFError)
-                println("EOFError in $file_name - processing continuing.  Manually check")
+                mem_file = string(file_name,"memdump.txt")
+                # Add code to dump current memory state to this mem-file in hex
+                println("EOFError in $file_name - processing continuing.  Manually check.")
                 break
             else
                 ErrorException("Unhandled error when processing $file_name .  Program terminating")
