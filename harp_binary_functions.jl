@@ -79,6 +79,7 @@ function track_state(Message,Timestamp,Addresses,Payloads,Types)
     for ind in state_bits
         push!(state_names,registerbits_A[ind])
     end
+    reads  = Message .=== 0x01
     writes = Message .=== 0x02
     events = Message .=== 0x03
     num_writes = count(writes)
@@ -93,14 +94,16 @@ function track_state(Message,Timestamp,Addresses,Payloads,Types)
             merge!(event_dictionary,Dict([(cur_address,DataFrame(Timestamp = Timestamp[event_index], Payload = Payloads[event_index]))]))
         end
     end
-    
-    write_events = Array{Union{Nothing,Bool,Float64},2}(undef,num_writes,num_states+1)
-    write_sets   = writes .& (Addresses .=== 0x22)
-    write_set_events = Array{Union{Nothing,Bool},2}(undef,count(write_sets),num_states)
-    write_clears = writes .& (Addresses .=== 0x23)
-    write_clear_events = Array{Union{Nothing,Bool},2}(undef,count(write_clears),num_states)
-    set_inds = findall(Addresses[writes] .=== 0x22)
-    clear_inds = findall(Addresses[writes] .=== 0x23)
+    write_events        = Array{Union{Nothing,Bool,Float64},2}(undef,num_writes,num_states+1)
+    write_sets          = writes .& (Addresses .=== 0x22)
+    write_set_events    = Array{Union{Nothing,Bool},2}(undef,count(write_sets),num_states)
+    write_clears        = writes .& (Addresses .=== 0x23)
+    write_clear_events  = Array{Union{Nothing,Bool},2}(undef,count(write_clears),num_states)
+    write_toggles       = writes .& (Addresses .=== 0x24)
+    write_toggle_events = Array{Union{Nothing,Bool},2}(undef,count(write_toggles),num_states + 1)
+    set_inds    = findall(Addresses[writes] .=== 0x22)
+    clear_inds  = findall(Addresses[writes] .=== 0x23)
+    toggle_inds = findall(Addresses[writes] .=== 0x24)
     for (ind,write_ind) in enumerate(findall(write_sets))
         cur_payload = read_message(Payloads[write_ind])
         set_registers = common_elements(state_bits,cur_payload)
@@ -111,6 +114,11 @@ function track_state(Message,Timestamp,Addresses,Payloads,Types)
         clear_registers = common_elements(state_bits,cur_payload)
         write_clear_events[ind,clear_registers] .= false
     end
+    for (ind,write_ind) in enumerate(findall(write_toggles))
+        cur_payload = read_message(Payloads[write_ind])
+        toggle_registers = common_elements(state_bits,cur_payload)
+        write_toggle_events[ind,clear_registers] .= false
+    end
     write_events[set_inds,2:end]   = write_set_events
     write_events[clear_inds,2:end] = write_clear_events
     write_events[:,1] = Timestamp[writes]
@@ -119,6 +127,14 @@ function track_state(Message,Timestamp,Addresses,Payloads,Types)
     write_events   = write_events[:,col_with_data]
     write_headings = vcat("Times",state_names)
     write_headings = write_headings[col_with_data]
+
+    read_data = Addresses[reads]
+    start_states = Vector{UInt8}(undef,length(write_headings))
+    for add in read_data
+        cur_header = get(registeradds_A,add,)
+
+
+    # Fill in the extra state
     for row_ind = 2:size(write_events)[1]
         write_events[row_ind,write_events[row_ind,:] .== nothing] = write_events[row_ind-1,write_events[row_ind,:] .== nothing]
     end
@@ -127,6 +143,8 @@ function track_state(Message,Timestamp,Addresses,Payloads,Types)
 end
 
 function track_state(Message,Timestamp,Addresses,Payloads,Types,write_bitshifts::Vector{Int},write_headings::Vector{String})
+    num_states = length(write_bitshifts)
+    reads  = Message .=== 0x01
     writes = Message .=== 0x02
     events = Message .=== 0x03
     num_writes = count(writes)
@@ -141,12 +159,12 @@ function track_state(Message,Timestamp,Addresses,Payloads,Types,write_bitshifts:
             merge!(event_dictionary,Dict([(cur_address,DataFrame(Timestamp = Timestamp[event_index], Payload = Payloads[event_index]))]))
         end
     end
-    
-    write_events = Array{Union{Nothing,Bool,Float64},2}(undef,num_writes,length(write_bitshifts)+1)
+
+    write_events = Array{Union{Nothing,Bool,Float64},2}(undef,num_writes,num_states+1)
     write_sets   = writes .& (Addresses .=== 0x22)
-    write_set_events = Array{Union{Nothing,Bool},2}(undef,count(write_sets),length(write_bitshifts))
+    write_set_events = Array{Union{Nothing,Bool},2}(undef,count(write_sets),num_states)
     write_clears = writes .& (Addresses .=== 0x23)
-    write_clear_events = Array{Union{Nothing,Bool},2}(undef,count(write_clears),length(write_bitshifts))
+    write_clear_events = Array{Union{Nothing,Bool},2}(undef,count(write_clears),num_states)
     set_inds = findall(Addresses[writes] .=== 0x22)
     clear_inds = findall(Addresses[writes] .=== 0x23)
     for (ind,write_ind) in enumerate(findall(write_sets))

@@ -37,5 +37,22 @@ registerbits_A = Dict([
     (13,"DO3")
 ])
 
+registeradds_A = Dict([
+    (46, "PORT0_DO"),
+    (47, "PORT1_DO"),
+    (48, "PORT2_DO"),
+    (49, "PORT0_12V"),
+    (50, "PORT1_12V"),
+    (51, "PORT2_12V"),
+    (52, "LED0"),
+    (53, "LED1"),
+    (54, "RGB0"),
+    (55, "RGB1"),
+    (56,"DO0"),
+    (57,"DO1"),
+    (58,"DO2"),
+    (59,"DO3")
+])
+
 
 
