@@ -72,6 +72,60 @@ function common_elements(ind_array::Vector{Int},sub_array::Vector{Int})
     return common_ind
 end
 
+function track_state(Message,Timestamp,Addresses,Payloads,Types)
+    num_states = length(registerbits_A)
+    state_bits = sort(collect(keys(registerbits_A)))
+    state_names= Vector{String}()
+    for ind in state_bits
+        push!(state_names,registerbits_A[ind])
+    end
+    writes = Message .=== 0x02
+    events = Message .=== 0x03
+    num_writes = count(writes)
+    # Construct events
+    event_types = unique(Types[events])
+    event_dictionary = Dict{UInt8,DataFrame}()
+    for cur_type in event_types
+        type_index = (Types .=== cur_type) .& events
+        event_address = unique(Addresses[type_index])
+        for cur_address in event_address
+            event_index = (Addresses .=== cur_address) .& type_index
+            merge!(event_dictionary,Dict([(cur_address,DataFrame(Timestamp = Timestamp[event_index], Payload = Payloads[event_index]))]))
+        end
+    end
+    
+    write_events = Array{Union{Nothing,Bool,Float64},2}(undef,num_writes,num_states+1)
+    write_sets   = writes .& (Addresses .=== 0x22)
+    write_set_events = Array{Union{Nothing,Bool},2}(undef,count(write_sets),num_states)
+    write_clears = writes .& (Addresses .=== 0x23)
+    write_clear_events = Array{Union{Nothing,Bool},2}(undef,count(write_clears),num_states)
+    set_inds = findall(Addresses[writes] .=== 0x22)
+    clear_inds = findall(Addresses[writes] .=== 0x23)
+    for (ind,write_ind) in enumerate(findall(write_sets))
+        cur_payload = read_message(Payloads[write_ind])
+        set_registers = common_elements(state_bits,cur_payload)
+        write_set_events[ind,set_registers] .= true
+    end
+    for (ind,write_ind) in enumerate(findall(write_clears))
+        cur_payload = read_message(Payloads[write_ind])
+        clear_registers = common_elements(state_bits,cur_payload)
+        write_clear_events[ind,clear_registers] .= false
+    end
+    write_events[set_inds,2:end]   = write_set_events
+    write_events[clear_inds,2:end] = write_clear_events
+    write_events[:,1] = Timestamp[writes]
+    # Now delete superflous columnns
+    col_with_data  = dropdims(sum(write_events .=== nothing,dims=1) .!= size(write_events)[1],dims=1)
+    write_events   = write_events[:,col_with_data]
+    write_headings = vcat("Times",state_names)
+    write_headings = write_headings[col_with_data]
+    for row_ind = 2:size(write_events)[1]
+        write_events[row_ind,write_events[row_ind,:] .== nothing] = write_events[row_ind-1,write_events[row_ind,:] .== nothing]
+    end
+    write_data = DataFrame(write_events,write_headings)
+    return event_dictionary, write_data
+end
+
 function track_state(Message,Timestamp,Addresses,Payloads,Types,write_bitshifts::Vector{Int},write_headings::Vector{String})
     writes = Message .=== 0x02
     events = Message .=== 0x03
