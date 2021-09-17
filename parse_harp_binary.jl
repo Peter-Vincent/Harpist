@@ -11,10 +11,6 @@ include("harp_binary_functions.jl")
 function parse_commandline()
     s = ArgParseSettings()
     @add_arg_table s begin
-        "--head_values"
-            help = "positional - Bitshifts to search for in the write data"
-        "--head_names"
-            help = "positional - Bitshift titles"
         "--new_fold", "-n"
             help = "Set to write .csv into a new folder for each file"
             action = :store_true
@@ -30,22 +26,6 @@ function main()
     parsed_args = parse_commandline()
     spec_flag = 0
     ## Now turn string arguments into what they actually should be
-    if typeof(parsed_args["head_values"]) == String
-        parsed_args["head_values"] = parse.(Int64,string.(split(parsed_args["head_values"],",")))
-        
-        if typeof(parsed_args["head_names"]) != String
-            ErrorException("You must provide BOTH head_values and head_names, or neither")
-        end
-        spec_flag += 1
-    end
-    if typeof(parsed_args["head_names"]) == String
-        parsed_args["head_names"]  = string.(split(parsed_args["head_names"],","))
-        
-        if typeof(parsed_args["head_values"]) != String
-            ErrorException("You must provide BOTH head_values and head_names, or neither")
-        end
-        spec_flag += 1
-    end
     dir = parsed_args["dir"]
     # Now start parsing the data
     to_analyse = Vector{String}()
@@ -69,11 +49,7 @@ function main()
             continue
         end
         Message, Timestamp, Addresses,Payloads, Types = read_harp_bin(cur_path)
-        if spec_flag == 2
-            events,writes = track_state(Message, Timestamp, Addresses,Payloads, Types,parsed_args["head_values"],parsed_args["head_names"])
-        else
-            events,writes = track_state(Message, Timestamp, Addresses,Payloads, Types)
-        end
+        events,writes = track_state(Message, Timestamp, Addresses,Payloads, Types)
         if parsed_args["new_fold"]
             sink_folder(events,writes,cur_path)
         else
