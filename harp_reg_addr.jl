@@ -54,5 +54,20 @@ registeradds_A = Dict([
     (59,"DO3")
 ])
 
+registeradds_PWM = Dict([
+    (60, "FREQ_PWM_DO0"),
+    (61, "FREQ_PWM_DO1"),
+    (62, "FREQ_PWM_DO2"),
+    (63, "FREQ_PWM_DO3"),
+    (64, "DCYC_PWM_DO0"),
+    (65, "DCYC_PWM_DO0"),
+    (66, "DCYC_PWM_DO0"),
+    (67, "DCYC_PWM_DO0"),
+    (68, "PWM_START"),
+    (69, "PWM_STOP")
+])
+
+
+
 
 

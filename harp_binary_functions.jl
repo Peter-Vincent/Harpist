@@ -71,6 +71,13 @@ function common_elements(ind_array::Vector{Int},sub_array::Vector{Int})
     end
     return common_ind
 end
+function track_pwm(Message,Timestamp,Addresses,Payloads,Types,writes)
+    on_pwm = findall(Addresses[writes] .=== 0x44)
+    off_pwm= findall(Addresses[writes] .=== 0x45)
+    for on_command in on_pwm
+        on_target = Payloads[on_pwm[1]]
+    end
+end
 
 function track_state(Message,Timestamp,Addresses,Payloads,Types)
     num_states = length(registerbits_A)
