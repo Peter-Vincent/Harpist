@@ -3,6 +3,15 @@
 ### parse_harp_binary.jl
 There were a couple of attempts at this in some different languages.  In the end, I settled for Julia for the combination of speed and a nice high level language
 
+### Install
+Start by installing julia using instructions [here](https://julialang.org/downloads/platform/)
+
+Once `julia` is on your path, call the `dependencies.jl` file as below
+```
+julia dependencies.jl
+```
+which will make sure you have all the packages you need (hopefully)
+
 `julia /path/to/parse_harp_binary.jl --help`
 ```
 usage: parse_harp_binary.jl [-n] [-h] dir
