@@ -4,6 +4,7 @@ Code to process the binaries from the harp board.
 
 using ArgParse
 using Glob
+using JSON
 
 include("harp_binary_functions.jl")
     
@@ -38,6 +39,8 @@ function main()
                 push!(to_analyse,joinpath(dir,cur_file))
             end
         end
+    elseif occursin(".json",dir)
+        throw(ArgumentError(dir,"JSON parsing is not yet supported"))
     else
         ArgumentError("Invalid path provided")
     end
