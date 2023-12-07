@@ -40,4 +40,6 @@ The program, as run from the command line, results in the creation of a few `.cs
 ## To-do
 - [ ] Better way to search for existing files to prevent re-analysis
 - [ ] Support toggle and other commands *getting there*
-- [ ] Remove need to specify the register values
+- [x] Remove need to specify the register values
+- [ ] Add multi-threading support for different message types
+- [ ] Add multi-process support for different data files
